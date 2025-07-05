@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Report</title>
+</head>
+<body>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Student Development Tracker - Charts</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4 font-inter">
+    <div class="bg-white p-8 rounded-lg shadow-xl max-w-4xl w-full">
+        <div class="header-info flex justify-between items-center mb-6 border-b pb-4">
+            <p class="text-lg text-gray-700">Logged in as: <strong id="loggedInInfo">Loading...</strong></p>
+            <button id="logoutButton" class="text-red-500 hover:text-red-700 font-medium">
+                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+            </button>
+        </div>
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-4 text-center">Development Progress Over Time</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h3 class="text-xl font-semibold text-blue-700 mb-2 text-center">Academic Development Average</h3>
+                <div id="academic-chart-container" class="w-full h-80">
+                    <canvas id="academicDevelopmentChart"></canvas>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-semibold text-green-700 mb-2 text-center">Sports & Wellness Development Average</h3>
+                <div id="wellness-chart-container" class="w-full h-80">
+                    <canvas id="wellnessDevelopmentChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div>
+                <h3 class="text-xl font-semibold text-purple-700 mb-2 text-center">Academic Focus Area Performance (Average)</h3>
+                <div id="academic-bar-chart-container" class="w-full h-80">
+                    <canvas id="academicFocusAreaBarChart"></canvas>
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-semibold text-orange-700 mb-2 text-center">Sports & Wellness Focus Area Performance (Average)</h3>
+                <div id="wellness-bar-chart-container" class="w-full h-80">
+                    <canvas id="wellnessFocusAreaBarChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4 mt-6">
+            <button type="button" id="clearAllDataButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                Clear All My Data (Local)
+            </button>
+            <a href="index.html" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 text-center inline-block">
+                Back to Form
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const user = { id: 'USER123', name: 'John Doe' };
+        document.getElementById('loggedInInfo').textContent = user.name;
+
+        let academicRatingsByDate = JSON.parse(localStorage.getItem('academicRatingsByDate')) || {};
+        let wellnessRatingsByDate = JSON.parse(localStorage.getItem('wellnessRatingsByDate')) || {};
+        let academicFocusAreaRatings = JSON.parse(localStorage.getItem('academicFocusAreaRatings')) || {};
+        let wellnessFocusAreaRatings = JSON.parse(localStorage.getItem('wellnessFocusAreaRatings')) || {};
+
+        function getAverageRatingsByDateForChart(ratingsByDate) {
+            const labels = Object.keys(ratingsByDate).sort();
+            const data = labels.map(date => {
+                const ratings = ratingsByDate[date].map(item => item.rating);
+                return ratings.length > 0 ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
+            });
+            return { labels, data };
+        }
+        
+        function getAverageFocusAreaRatings(focusAreaRatingsObject) {
+            const labels = [];
+            const data = [];
+            const rawOtherData = {};
+
+            for (const area in focusAreaRatingsObject) {
+                const ratingsArray = focusAreaRatingsObject[area].map(item => item.rating);
+                if (ratingsArray.length > 0) {
+                    const sum = ratingsArray.reduce((acc, curr) => acc + curr, 0);
+                    labels.push(area);
+                    data.push(sum / ratingsArray.length);
+                    const lastRating = focusAreaRatingsObject[area][focusAreaRatingsObject[area].length - 1];
+                    if (lastRating && lastRating.otherInput) { 
+                        rawOtherData[area] = lastRating.otherInput;
+                    }
+                }
+            }
+            return { labels, data, rawOtherData };
+        }
+
+        let academicChart, wellnessChart, academicFocusAreaBarChart, wellnessFocusAreaBarChart;
+
+        function initializeCharts() {
+            const academicCtx = document.getElementById('academicDevelopmentChart').getContext('2d');
+            academicChart = new Chart(academicCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Academic Average Rating',
+                            data: [],
+                            borderColor: 'rgba(59, 130, 246, 0.7)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3
+                        },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { font: { family: 'Inter' } }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Academic Progress by Date (Average)',
+                            font: { size: 16, family: 'Inter', weight: 'bold' },
+                            color: '#374151',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    const date = context.label;
+                                    const ratingsForDate = academicRatingsByDate[date];
+                                    let tooltipContent = [`Average: ${context.parsed.y.toFixed(2)}`];
+                                    if (ratingsForDate) {
+                                        ratingsForDate.forEach(item => {
+                                            const area = item.area === 'Other' && item.otherInput ? item.otherInput : item.area;
+                                            tooltipContent.push(`${area}: ${item.rating}`);
+                                        });
+                                    }
+                                    return tooltipContent;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter' } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            max: 5,
+                            grid: { color: 'rgba(209, 213, 219, 0.6)' },
+                            ticks: { font: { family: 'Inter' } }
+                        }
+                    }
+                }
+            });
+
+            const wellnessCtx = document.getElementById('wellnessDevelopmentChart').getContext('2d');
+            wellnessChart = new Chart(wellnessCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Sports & Wellness Average Rating',
+                            data: [],
+                            backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                            borderColor: 'rgba(34, 197, 94, 1)',
+                            borderWidth: 1
+                        },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { font: { family: 'Inter' } }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Sports & Wellness Progress by Date (Average)',
+                            font: { size: 16, family: 'Inter', weight: 'bold' },
+                            color: '#374151',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    const date = context.label;
+                                    const ratingsForDate = wellnessRatingsByDate[date];
+                                    let tooltipContent = [`Average: ${context.parsed.y.toFixed(2)}`];
+                                    if (ratingsForDate) {
+                                        ratingsForDate.forEach(item => {
+                                            const area = item.area === 'Other' && item.otherInput ? item.otherInput : item.area;
+                                            tooltipContent.push(`${area}: ${item.rating}`);
+                                        });
+                                    }
+                                    return tooltipContent;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter' } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            max: 5,
+                            grid: { color: 'rgba(209, 213, 219, 0.6)' },
+                            ticks: { font: { family: 'Inter' } }
+                        }
+                    }
+                }
+            });
+
+            const academicBarCtx = document.getElementById('academicFocusAreaBarChart').getContext('2d');
+            academicFocusAreaBarChart = new Chart(academicBarCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Academic Average Rating',
+                            data: [],
+                            backgroundColor: 'rgba(128, 0, 128, 0.7)',
+                            borderColor: 'rgba(128, 0, 128, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Academic Focus Area Performance',
+                            font: { size: 16, family: 'Inter', weight: 'bold' },
+                            color: '#374151',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed.y.toFixed(2);
+                                    const currentLabel = context.label;
+                                    const otherData = getAverageFocusAreaRatings(academicFocusAreaRatings).rawOtherData;
+
+                                    if (otherData[currentLabel]) {
+                                        return `Other: "${otherData[currentLabel]}" (Avg Rating: ${value})`;
+                                    } else {
+                                        return `${currentLabel}: ${value}`;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter' } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            max: 5,
+                            grid: { color: 'rgba(209, 213, 219, 0.6)' },
+                            ticks: { font: { family: 'Inter' } }
+                        }
+                    }
+                }
+            });
+
+            const wellnessBarCtx = document.getElementById('wellnessFocusAreaBarChart').getContext('2d');
+            wellnessFocusAreaBarChart = new Chart(wellnessBarCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Sports & Wellness Average Rating',
+                            data: [],
+                            backgroundColor: 'rgba(255, 165, 0, 0.7)',
+                            borderColor: 'rgba(255, 165, 0, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Sports & Wellness Focus Area Performance',
+                            font: { size: 16, family: 'Inter', weight: 'bold' },
+                            color: '#374151',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed.y.toFixed(2);
+                                    const currentLabel = context.label;
+                                    const otherData = getAverageFocusAreaRatings(wellnessFocusAreaRatings).rawOtherData;
+
+                                    if (otherData[currentLabel]) {
+                                        return `Other: "${otherData[currentLabel]}" (Avg Rating: ${value})`;
+                                    } else {
+                                        return `${currentLabel}: ${value}`;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Inter' } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            max: 5,
+                            grid: { color: 'rgba(209, 213, 219, 0.6)' },
+                            ticks: { font: { family: 'Inter' } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateCharts() {
+            academicRatingsByDate = JSON.parse(localStorage.getItem('academicRatingsByDate')) || {};
+            wellnessRatingsByDate = JSON.parse(localStorage.getItem('wellnessRatingsByDate')) || {};
+            academicFocusAreaRatings = JSON.parse(localStorage.getItem('academicFocusAreaRatings')) || {};
+            wellnessFocusAreaRatings = JSON.parse(localStorage.getItem('wellnessFocusAreaRatings')) || {};
+
+            const academicChartData = getAverageRatingsByDateForChart(academicRatingsByDate);
+            academicChart.data.labels = academicChartData.labels;
+            academicChart.data.datasets[0].data = academicChartData.data;
+            academicChart.update();
+
+            const academicFocusData = getAverageFocusAreaRatings(academicFocusAreaRatings);
+            academicFocusAreaBarChart.data.labels = academicFocusData.labels;
+            academicFocusAreaBarChart.data.datasets[0].data = academicFocusData.data;
+            academicFocusAreaBarChart.update();
+
+            const wellnessChartData = getAverageRatingsByDateForChart(wellnessRatingsByDate);
+            wellnessChart.data.labels = wellnessChartData.labels;
+            wellnessChart.data.datasets[0].data = wellnessChartData.data;
+            wellnessChart.update();
+
+            const wellnessFocusData = getAverageFocusAreaRatings(wellnessFocusAreaRatings);
+            wellnessFocusAreaBarChart.data.labels = wellnessFocusData.labels;
+            wellnessFocusAreaBarChart.data.datasets[0].data = wellnessFocusData.data;
+            wellnessFocusAreaBarChart.update();
+        }
+
+        document.getElementById('clearAllDataButton').addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear ALL your development data? This action cannot be undone.')) {
+                localStorage.removeItem('academicRatingsByDate');
+                localStorage.removeItem('academicFocusAreaRatings');
+                localStorage.removeItem('wellnessRatingsByDate');
+                localStorage.removeItem('wellnessFocusAreaRatings');
+
+                academicRatingsByDate = {};
+                academicFocusAreaRatings = {};
+                wellnessRatingsByDate = {};
+                wellnessFocusAreaRatings = {};
+
+                updateCharts();
+                alert('All development data cleared successfully!');
+            }
+        });
+
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            alert('Logout functionality is not yet implemented.');
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeCharts();
+            updateCharts();
+        });
+    </script>
+</body>
+</html>
+
+    <h1>Analysis Report Page</h1>
+    <p>This page will display your analysis reports and visualizations.</p>
+    <br>
+    <a href="data.php">Back to Data Analyze</a> | <a href="index.php">Back to Home</a>
+</body>
+</html>

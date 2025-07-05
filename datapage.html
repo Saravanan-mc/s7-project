@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Student Development Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-8 rounded-lg shadow-xl max-w-4xl w-full">
+        <div class="header-info flex justify-between items-center mb-6 border-b pb-4">
+            <p class="text-lg text-gray-700">Logged in as: <strong id="loggedInInfo">Loading...</strong></p>
+            <button id="logoutButton" class="text-red-500 hover:text-red-700 font-medium">
+                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+            </button>
+        </div>
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-4 text-center">Student Development Form</h1>
+        <p class="optional-note text-center text-gray-500 mb-6">All fields in this form are optional, but ratings will update your graph.</p>
+
+        <div id="messageBox" class="message-box hidden px-4 py-3 rounded-lg mb-4 text-sm font-medium"></div>
+
+        <form id="developmentForm" class="mb-8 p-6 bg-blue-50 rounded-lg shadow-inner">
+            <div class="form-header-inputs grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="block text-gray-700 font-medium">Your User ID:</label>
+                    <p id="displayUserId" class="font-normal text-gray-800 mt-1">Loading...</p>
+                    <input type="hidden" name="student_user_id" id="studentUserId">
+                </div>
+                <div>
+                    <label for="selectedDate" class="block text-gray-700 font-medium">Select Date:</label>
+                    <input type="date" id="selectedDate" name="form_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2" aria-label="Select submission date">
+                </div>
+                <input type="hidden" name="submission_timestamp" id="submissionTimestampHidden">
+            </div>
+
+            <div class="mb-6 p-4 border rounded-lg bg-white shadow-sm">
+                <h2 class="text-xl font-semibold text-blue-700 mb-3"><i class="fas fa-brain mr-2"></i>Academic</h2>
+                <label for="academic_area" class="block text-gray-700 font-medium">Select Focus Area:</label>
+                <select name="academic_area" id="academic_area" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2" onchange="toggleOtherInput(this, 'academic_other_container')">
+                    <option value="">-- Select One (Optional) --</option>
+                    <option value="Subject">Subject</option>
+                    <option value="Note-taking">Note-taking</option>
+                    <option value="Research">Research</option>
+                    <option value="Exam Preparation">Exam Preparation</option>
+                    <option value="Other">Other</option>
+                </select>
+                <div id="academic_other_container" class="mt-2 hidden">
+                    <label for="academic_area_other" class="block text-gray-700 font-medium">Other (please specify):</label>
+                    <input type="text" name="academic_area_other" id="academic_area_other" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2" aria-label="Specify other academic focus area">
+                </div>
+                <label for="academic_rating" class="block text-gray-700 font-medium mt-3">Rate Your Development (1 to 5):</label>
+                <input type="number" name="academic_rating" id="academic_rating" min="1" max="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2" aria-label="Academic development rating (1 to 5)">
+            </div>
+
+            <div class="mb-6 p-4 border rounded-lg bg-white shadow-sm">
+                <h2 class="text-xl font-semibold text-blue-700 mb-3"><i class="fas fa-dumbbell mr-2"></i>Sports & Wellness</h2>
+                <label for="wellness_area" class="block text-gray-700 font-medium">Select Focus Area:</label>
+                <select name="wellness_area" id="wellness_area" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2" onchange="toggleOtherInput(this, 'wellness_other_container')">
+                    <option value="">-- Select One (Optional) --</option>
+                    <option value="Physical Fitness">Physical Fitness</option>
+                    <option value="Mental Health">Mental Health</option>
+                    <option value="Stress Management">Stress Management</option>
+                    <option value="Team Activities">Team Activities</option>
+                    <option value="Other">Other</option>
+                </select>
+                <div id="wellness_other_container" class="mt-2 hidden">
+                    <label for="wellness_area_other" class="block text-gray-700 font-medium">Other (please specify):</label>
+                    <input type="text" name="wellness_area_other" id="wellness_area_other" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2" aria-label="Specify other sports and wellness focus area">
+                </div>
+                <label for="wellness_rating" class="block text-gray-700 font-medium mt-3">Rate Your Engagement (1 to 5):</label>
+                <input type="number" name="wellness_rating" id="wellness_rating" min="1" max="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2" aria-label="Sports and wellness engagement rating (1 to 5)">
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center space-y-3 sm:space-y-0 sm:space-x-4 mt-6">
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                    Submit Development Report
+                </button>
+                <button type="button" id="clearFormDataButton" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                    Clear Form
+                </button>
+            </div>
+        </form>
+
+        <hr class="my-8 border-t-2 border-gray-200">
+
+        <div class="p-6 bg-gray-50 rounded-lg shadow-inner">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Development Progress Over Time</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-semibold text-blue-700 mb-2 text-center">Academic Development Average</h3>
+                    <div id="academic-chart-container" class="w-full h-80">
+                        <canvas id="academicDevelopmentChart"></canvas>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold text-green-700 mb-2 text-center">Sports & Wellness Development Average</h3>
+                    <div id="wellness-chart-container" class="w-full h-80">
+                        <canvas id="wellnessDevelopmentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <h3 class="text-xl font-semibold text-purple-700 mb-2 text-center">Focus Area Performance (Average)</h3>
+                <div id="combined-bar-chart-container" class="w-full h-80">
+                    <canvas id="focusAreaBarChart"></canvas>
+                </div>
+            </div>
+
+            <div class="flex justify-center mt-6">
+                <button type="button" id="clearAllDataButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+                    Clear All My Data (Local & Cloud)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const user = { id: 'USER123', name: 'John Doe' };
+        document.getElementById('loggedInInfo').textContent = user.name;
+        document.getElementById('displayUserId').textContent = user.id;
+        document.getElementById('studentUserId').value = user.id;
+
+        // Stores an object where keys are dates and values are arrays of {area, otherInput, rating} objects
+        let academicRatingsByDate = JSON.parse(localStorage.getItem('academicRatingsByDate')) || {};
+        let wellnessRatingsByDate = JSON.parse(localStorage.getItem('wellnessRatingsByDate')) || {};
+
+        // Stores an object where keys are focus areas (e.g., "Subject", "Physical Fitness") and values are arrays of ratings
+        let academicFocusAreaRatings = JSON.parse(localStorage.getItem('academicFocusAreaRatings')) || {};
+        let wellnessFocusAreaRatings = JSON.parse(localStorage.getItem('wellnessFocusAreaRatings')) || {};
+
+        function getAverageRatingsForChart(ratingsByDate) {
+            const labels = Object.keys(ratingsByDate).sort(); // Sort dates chronologically
+            const data = labels.map(date => {
+                const ratings = ratingsByDate[date].map(item => item.rating);
+                return ratings.length > 0 ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
+            });
+            return { labels, data };
+        }
+        
+        function calculateAverageOfFocusAreaRatings(focusAreaRatingsObject) {
+            const averages = {};
+            for (const area in focusAreaRatingsObject) {
+                const ratingsArray = focusAreaRatingsObject[area].map(item => item.rating); // Extract ratings from objects
+                if (ratingsArray.length > 0) {
+                    const sum = ratingsArray.reduce((acc, curr) => acc + curr, 0);
+                    averages[area] = sum / ratingsArray.length;
+                }
+            }
+            return averages;
+        }
+
+        function getCombinedFocusAreaAverages() {
+            const combinedLabels = [];
+            const combinedData = [];
+            const backgroundColors = [];
+            const rawOtherData = {}; // To store the "Other" input for tooltips
+
+            const academicAverages = calculateAverageOfFocusAreaRatings(academicFocusAreaRatings);
+            const wellnessAverages = calculateAverageOfFocusAreaRatings(wellnessFocusAreaRatings);
+
+            // Academic data
+            for (const area in academicAverages) {
+                combinedLabels.push(area);
+                combinedData.push(academicAverages[area]);
+                backgroundColors.push('rgba(59, 130, 246, 0.7)'); // Blue for Academic
+                // Store 'otherInput' if available, assuming it's stored with the last rating for that area
+                const lastAcademicRating = academicFocusAreaRatings[area][academicFocusAreaRatings[area].length - 1];
+                if (lastAcademicRating && lastAcademicRating.otherInput) { 
+                    rawOtherData[area] = lastAcademicRating.otherInput;
+                }
+            }
+
+            // Wellness data
+            for (const area in wellnessAverages) {
+                combinedLabels.push(area);
+                combinedData.push(wellnessAverages[area]);
+                backgroundColors.push('rgba(34, 197, 94, 0.7)'); // Green for Wellness
+                // Store 'otherInput' if available, assuming it's stored with the last rating for that area
+                const lastWellnessRating = wellnessFocusAreaRatings[area][wellnessFocusAreaRatings[area].length - 1];
+                if (lastWellnessRating && lastWellnessRating.otherInput) { 
+                    rawOtherData[area] = lastWellnessRating.otherInput;
+                }
+            }
+            return { labels: combinedLabels, data: combinedData, backgroundColors: backgroundColors, rawOtherData: rawOtherData };
+        }
+
+        // Initialize Academic Chart (Bar Chart)
+        const academicCtx = document.getElementById('academicDevelopmentChart').getContext('2d');
+        const academicChart = new Chart(academicCtx, {
+            type: 'bar', // Changed to bar chart
+            data: {
+                labels: getAverageRatingsForChart(academicRatingsByDate).labels,
+                datasets: [
+                    {
+                        label: 'Academic Average Rating',
+                        data: getAverageRatingsForChart(academicRatingsByDate).data,
+                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    },
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { font: { family: 'Inter' } }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Academic Progress by Date (Average)',
+                        font: { size: 16, family: 'Inter', weight: 'bold' },
+                        color: '#374151',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label; // Displays the date
+                            },
+                            label: function(context) {
+                                const date = context.label;
+                                const ratingsForDate = academicRatingsByDate[date];
+                                let tooltipContent = [`Average: ${context.parsed.y.toFixed(2)}`];
+                                if (ratingsForDate) {
+                                    ratingsForDate.forEach(item => {
+                                        const area = item.area === 'Other' && item.otherInput ? item.otherInput : item.area;
+                                        tooltipContent.push(`${area}: ${item.rating}`);
+                                    });
+                                }
+                                return tooltipContent;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter' } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 5,
+                        grid: { color: 'rgba(209, 213, 219, 0.6)' },
+                        ticks: { font: { family: 'Inter' } }
+                    }
+                }
+            }
+        });
+
+        // Initialize Wellness Chart (Bar Chart)
+        const wellnessCtx = document.getElementById('wellnessDevelopmentChart').getContext('2d');
+        const wellnessChart = new Chart(wellnessCtx, {
+            type: 'bar', // Changed to bar chart
+            data: {
+                labels: getAverageRatingsForChart(wellnessRatingsByDate).labels,
+                datasets: [
+                    {
+                        label: 'Sports & Wellness Average Rating',
+                        data: getAverageRatingsForChart(wellnessRatingsByDate).data,
+                        backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                        borderColor: 'rgba(34, 197, 94, 1)',
+                        borderWidth: 1
+                    },
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { font: { family: 'Inter' } }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Sports & Wellness Progress by Date (Average)',
+                        font: { size: 16, family: 'Inter', weight: 'bold' },
+                        color: '#374151',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label; // Displays the date
+                            },
+                            label: function(context) {
+                                const date = context.label;
+                                const ratingsForDate = wellnessRatingsByDate[date];
+                                let tooltipContent = [`Average: ${context.parsed.y.toFixed(2)}`];
+                                if (ratingsForDate) {
+                                    ratingsForDate.forEach(item => {
+                                        const area = item.area === 'Other' && item.otherInput ? item.otherInput : item.area;
+                                        tooltipContent.push(`${area}: ${item.rating}`);
+                                    });
+                                }
+                                return tooltipContent;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter' } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 5,
+                        grid: { color: 'rgba(209, 213, 219, 0.6)' },
+                        ticks: { font: { family: 'Inter' } }
+                    }
+                }
+            }
+        });
+
+        // Initialize Combined Focus Area Bar Chart
+        const barCtx = document.getElementById('focusAreaBarChart').getContext('2d');
+        const focusAreaBarChart = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: getCombinedFocusAreaAverages().labels,
+                datasets: [
+                    {
+                        label: 'Average Rating',
+                        data: getCombinedFocusAreaAverages().data,
+                        backgroundColor: getCombinedFocusAreaAverages().backgroundColors,
+                        borderColor: getCombinedFocusAreaAverages().backgroundColors.map(color => color.replace('0.7', '1')),
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    title: {
+                        display: true,
+                        text: 'Overall Performance by Focus Area',
+                        font: { size: 16, family: 'Inter', weight: 'bold' },
+                        color: '#374151',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                const value = context.parsed.y.toFixed(2); // Format to two decimal places
+                                const currentLabel = context.label;
+                                const otherData = getCombinedFocusAreaAverages().rawOtherData;
+
+                                if (otherData[currentLabel]) {
+                                    return `Other: "${otherData[currentLabel]}" (Avg Rating: ${value})`;
+                                } else {
+                                    return `${currentLabel}: ${value}`;
+                                }
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: 'Inter' } }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        max: 5,
+                        grid: { color: 'rgba(209, 213, 219, 0.6)' },
+                        ticks: { font: { family: 'Inter' } }
+                    }
+                }
+            }
+        });
+
+        function toggleOtherInput(selectElement, containerId) {
+            const container = document.getElementById(containerId);
+            container.classList.toggle('hidden', selectElement.value !== 'Other');
+            if (selectElement.value !== 'Other') {
+                document.getElementById(`${selectElement.id}_other`).value = '';
+            }
+        }
+
+        const form = document.getElementById('developmentForm');
+        const messageBox = document.getElementById('messageBox');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const dateInput = document.getElementById('selectedDate').value;
+            if (!dateInput) {
+                showMessage('Please select a date.', 'error');
+                return;
+            }
+
+            const academicArea = document.getElementById('academic_area').value;
+            const academicAreaOther = document.getElementById('academic_area_other').value.trim();
+            const wellnessArea = document.getElementById('wellness_area').value;
+            const wellnessAreaOther = document.getElementById('wellness_area_other').value.trim();
+
+            const academicRating = parseInt(document.getElementById('academic_rating').value) || 0;
+            const wellnessRating = parseInt(document.getElementById('wellness_rating').value) || 0;
+
+            if (academicRating === 0 && wellnessRating === 0) {
+                showMessage('Please provide at least one rating between 1 and 5.', 'error');
+                return;
+            }
+
+            if (academicArea === 'Other' && !academicAreaOther && academicRating > 0) {
+                showMessage('Please specify the "Other" field for Academic.', 'error');
+                return;
+            }
+            if (wellnessArea === 'Other' && !wellnessAreaOther && wellnessRating > 0) {
+                showMessage('Please specify the "Other" field for Sports & Wellness.', 'error');
+                return;
+            }
+
+            // Academic Data Update
+            if (academicRating > 0) {
+                const currentAcademicArea = (academicArea === 'Other' && academicAreaOther) ? academicAreaOther : academicArea || 'General Academic';
+                
+                if (!academicRatingsByDate[dateInput]) {
+                    academicRatingsByDate[dateInput] = [];
+                }
+                academicRatingsByDate[dateInput].push({
+                    area: academicArea, // Keep original value for filtering 'Other'
+                    otherInput: academicAreaOther,
+                    rating: Math.min(5, Math.max(1, academicRating))
+                });
+                localStorage.setItem('academicRatingsByDate', JSON.stringify(academicRatingsByDate));
+
+                if (!academicFocusAreaRatings[currentAcademicArea]) {
+                    academicFocusAreaRatings[currentAcademicArea] = [];
+                }
+                academicFocusAreaRatings[currentAcademicArea].push({
+                    area: academicArea, // Keep original value for filtering 'Other'
+                    otherInput: academicAreaOther,
+                    rating: Math.min(5, Math.max(1, academicRating))
+                });
+                localStorage.setItem('academicFocusAreaRatings', JSON.stringify(academicFocusAreaRatings));
+            }
+
+            // Wellness Data Update
+            if (wellnessRating > 0) {
+                const currentWellnessArea = (wellnessArea === 'Other' && wellnessAreaOther) ? wellnessAreaOther : wellnessArea || 'General Wellness';
+
+                if (!wellnessRatingsByDate[dateInput]) {
+                    wellnessRatingsByDate[dateInput] = [];
+                }
+                wellnessRatingsByDate[dateInput].push({
+                    area: wellnessArea,
+                    otherInput: wellnessAreaOther,
+                    rating: Math.min(5, Math.max(1, wellnessRating))
+                });
+                localStorage.setItem('wellnessRatingsByDate', JSON.stringify(wellnessRatingsByDate));
+
+                if (!wellnessFocusAreaRatings[currentWellnessArea]) {
+                    wellnessFocusAreaRatings[currentWellnessArea] = [];
+                }
+                wellnessFocusAreaRatings[currentWellnessArea].push({
+                    area: wellnessArea,
+                    otherInput: wellnessAreaOther,
+                    rating: Math.min(5, Math.max(1, wellnessRating))
+                });
+                localStorage.setItem('wellnessFocusAreaRatings', JSON.stringify(wellnessFocusAreaRatings));
+            }
+            
+            updateCharts();
+            showMessage('Development report submitted successfully!', 'success');
+            form.reset();
+            const sections = ['academic', 'wellness'];
+            sections.forEach(section => toggleOtherInput(document.getElementById(`${section}_area`), `${section}_other_container`));
+        });
+
+        function updateCharts() {
+            // Update Academic Chart
+            const academicChartData = getAverageRatingsForChart(academicRatingsByDate);
+            academicChart.data.labels = academicChartData.labels;
+            academicChart.data.datasets[0].data = academicChartData.data;
+            academicChart.update();
+
+            // Update Wellness Chart
+            const wellnessChartData = getAverageRatingsForChart(wellnessRatingsByDate);
+            wellnessChart.data.labels = wellnessChartData.labels;
+            wellnessChart.data.datasets[0].data = wellnessChartData.data;
+            wellnessChart.update();
+
+            // Update Combined Focus Area Chart
+            const combinedData = getCombinedFocusAreaAverages();
+            focusAreaBarChart.data.labels = combinedData.labels;
+            focusAreaBarChart.data.datasets[0].data = combinedData.data;
+            focusAreaBarChart.data.datasets[0].backgroundColor = combinedData.backgroundColors;
+            focusAreaBarChart.data.datasets[0].borderColor = combinedData.backgroundColors.map(color => color.replace('0.7', '1'));
+            focusAreaBarChart.update();
+        }
+
+        function showMessage(message, type) {
+            messageBox.textContent = message;
+            if (type === 'success') {
+                messageBox.className = 'message-box px-4 py-3 rounded-lg mb-4 text-sm font-medium bg-green-100 text-green-800';
+            } else if (type === 'error') {
+                messageBox.className = 'message-box px-4 py-3 rounded-lg mb-4 text-sm font-medium bg-red-100 text-red-800';
+            }
+            messageBox.classList.remove('hidden');
+        }
+
+        document.getElementById('clearFormDataButton').addEventListener('click', function() {
+            form.reset();
+            messageBox.classList.add('hidden'); // Hide message box on clear
+            const sections = ['academic', 'wellness'];
+            sections.forEach(section => toggleOtherInput(document.getElementById(`${section}_area`), `${section}_other_container`));
+        });
+
+        document.getElementById('clearAllDataButton').addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear ALL your development data? This action cannot be undone.')) {
+                academicRatingsByDate = {};
+                localStorage.removeItem('academicRatingsByDate');
+                academicFocusAreaRatings = {};
+                localStorage.removeItem('academicFocusAreaRatings');
+
+                wellnessRatingsByDate = {};
+                localStorage.removeItem('wellnessRatingsByDate');
+                wellnessFocusAreaRatings = {};
+                localStorage.removeItem('wellnessFocusAreaRatings');
+
+                updateCharts(); // Update all charts to reflect cleared data
+                showMessage('All development data cleared successfully!', 'success');
+            }
+        });
+
+        document.getElementById('logoutButton').addEventListener('click', function() {
+            alert('Logout functionality is not yet implemented.');
+        });
+
+        // Initial chart update on page load
+        updateCharts();
+    </script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mindful Paths - Better Sleep</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles for Inter font and general body styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Light blue-gray background */
+            color: #334155; /* Dark slate gray text */
+        }
+        /* Smooth scrolling for anchor links */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <header class="bg-white shadow-sm py-4 px-6 md:px-12 sticky top-0 z-50 rounded-b-lg">
+        <nav class="flex items-center justify-between max-w-7xl mx-auto">
+            <a href="index.html" class="flex items-center space-x-2 text-2xl font-bold text-indigo-700 hover:text-indigo-800 transition-colors duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.001 12.001 0 002.944 12c.047 1.41.272 2.802.675 4.162a12.001 12.001 0 0018.362-7.162 11.955 11.955 0 01-3.04-8.618z" />
+                </svg>
+                <span>Mindful Paths</span>
+            </a>
+
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-md p-2 transition-colors duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+
+            <ul id="desktop-menu" class="hidden md:flex space-x-8">
+                <li><a href="index.html" class="text-gray-600 hover:text-indigo-700 font-medium transition-colors duration-300">Home</a></li>
+                <li><a href="resources.html" class="text-indigo-700 font-medium transition-colors duration-300">Resources</a></li>
+                <li><a href="tools.html" class="text-gray-600 hover:text-indigo-700 font-medium transition-colors duration-300">Tools</a></li>
+                <li><a href="contact.html" class="text-gray-600 hover:text-indigo-700 font-medium transition-colors duration-300">Contact</a></li>
+            </ul>
+        </nav>
+
+        <div id="mobile-menu" class="md:hidden hidden bg-white py-4 mt-2 rounded-lg shadow-lg">
+            <ul class="flex flex-col space-y-4 px-4">
+                <li><a href="index.html" class="block text-gray-700 hover:text-indigo-700 font-medium py-2 transition-colors duration-300">Home</a></li>
+                <li><a href="resources.html" class="block text-indigo-700 font-medium py-2 transition-colors duration-300">Resources</a></li>
+                <li><a href="tools.html" class="block text-gray-700 hover:text-indigo-700 font-medium py-2 transition-colors duration-300">Tools</a></li>
+                <li><a href="contact.html" class="block text-gray-700 hover:text-indigo-700 font-medium py-2 transition-colors duration-300">Contact</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-6 md:px-12 py-8">
+
+        <section class="bg-white rounded-xl shadow-lg p-8 md:p-12 mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-center text-indigo-700 mb-8">Achieving Restorative Sleep</h2>
+            <div class="flex flex-col md:flex-row items-center md:space-x-12">
+                <div class="md:w-1/2 mb-8 md:mb-0">
+                    <img src="https://placehold.co/600x400/e0e7ff/4f46e5?text=Good+Sleep" alt="Better Sleep Image" class="rounded-lg shadow-md w-full h-auto object-cover">
+                </div>
+                <div class="md:w-1/2 text-gray-700 leading-relaxed">
+                    <p class="mb-4">
+                        Sleep is a cornerstone of good mental and physical health. When you don't get enough quality sleep, it can negatively impact your mood, concentration, and ability to cope with stress. Establishing healthy sleep habits, often referred to as "sleep hygiene," is crucial for improving your overall well-being.
+                    </p>
+                    <p class="mb-4">
+                        This section provides practical tips and strategies to help you improve your sleep. From creating a relaxing bedtime routine to optimizing your sleep environment and understanding the impact of diet and exercise on sleep, we cover essential aspects to help you achieve consistent, restorative rest.
+                    </p>
+                    <p>
+                        Discover how prioritizing your sleep can lead to a more energized, focused, and emotionally balanced life.
+                    </p>
+                </div>
+            </div>
+            <div class="mt-12">
+                <h3 class="text-2xl font-bold text-indigo-700 mb-6 text-center">Tips for Better Sleep Hygiene:</h3>
+                <ul class="list-disc list-inside text-gray-700 space-y-3 max-w-2xl mx-auto">
+                    <li><strong>Consistent Schedule:</strong> Go to bed and wake up at the same time every day, even on weekends.</li>
+                    <li><strong>Optimal Environment:</strong> Keep your bedroom dark, quiet, cool, and comfortable.</li>
+                    <li><strong>Limit Stimulants:</strong> Avoid caffeine and nicotine, especially in the afternoon and evening.</li>
+                    <li><strong>Avoid Late Meals:</strong> Don't eat heavy meals close to bedtime.</li>
+                    <li><strong>Relaxing Routine:</strong> Engage in calming activities before bed, like reading or a warm bath.</li>
+                    <li><strong>Limit Screen Time:</strong> Avoid electronic screens an hour before sleep.</li>
+                </ul>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 px-6 md:px-12 rounded-t-lg">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
+            <div class="text-center md:text-left">
+                <p>&copy; 2025 Mindful Paths. All rights reserved.</p>
+                <p class="text-sm text-gray-400 mt-1">Nurturing minds, fostering peace.</p>
+            </div>
+            <ul class="flex flex-wrap justify-center md:justify-end space-x-6">
+                <li><a href="index.html" class="text-gray-300 hover:text-white transition-colors duration-300">Home</a></li>
+                <li><a href="resources.html" class="text-gray-300 hover:text-white transition-colors duration-300">Resources</a></li>
+                <li><a href="tools.html" class="text-gray-300 hover:text-white transition-colors duration-300">Tools</a></li>
+                <li><a href="contact.html" class="text-gray-300 hover:text-white transition-colors duration-300">Contact</a></li>
+                <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">Privacy Policy</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            // Toggle mobile menu visibility
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Close mobile menu when a link is clicked (for smooth scrolling)
+            mobileMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
